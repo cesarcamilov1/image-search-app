@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { environment } from "./environtment/environtment";
 import "./App.css";
 
@@ -14,6 +14,7 @@ function App() {
   const [image, setImage] = useState<string>("");
   const [response, setResponse] = useState<UnsplashImage[]>([]);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const imageRequestFetch = async () => {
     const firstdata = await fetch(
@@ -26,37 +27,50 @@ function App() {
 
   useEffect(() => {
     imageRequestFetch();
-  }, []);
+  }, [image]);
 
   const handleImageClick = (imageUrl: string) => {
     setSelectedImageUrl(imageUrl);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
     <>
       <div className="container ">
-        <div className="profile-background">
-          {response.map((value) => {
-            return (
-              <img
-                src={value.urls.regular}
-                alt={value.alt_description}
-                key={value.id}
-                onClick={() => handleImageClick(value.urls.regular)}
-              />
-            );
-          })}
-        </div>
-        <div className="profile-picture"></div>
         <div className="content">
-          <input
-            type="text"
-            placeholder="Change background picture"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-          />
+          <button onClick={() => setShowModal(true)}>Cambiar perfil</button>
         </div>
       </div>
+
+      {showModal && (
+        <div className="modal" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="text"
+              placeholder="Change background picture"
+              value={image}
+              onChange={(e) => setImage(e.target.value)}
+            />
+            <div className="image-grid">
+              {response.map((value) => {
+                return (
+                  <img
+                    className="dialog-image "
+                    src={value.urls.regular}
+                    alt={value.alt_description}
+                    key={value.id}
+                    onClick={() => handleImageClick(value.urls.regular)}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className="profile-container"
@@ -89,5 +103,3 @@ function App() {
 }
 
 export default App;
-
-//https://api.unsplash.com/search/photos?page=1&query=office
